@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+    remind-bot-fb:
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: remind-bot-fb
+        restart: unless-stopped
+        ports:
+            - '3000:3000'
+        environment:
+            - NODE_ENV=production
+            - PORT=3000
+            - VERIFY_TOKEN=${VERIFY_TOKEN:-your_unique_verify_token_here}
+            - PAGE_ACCESS_TOKEN=${PAGE_ACCESS_TOKEN:-}
+            - APP_SECRET=${APP_SECRET:-}
+        env_file:
+            - .env
+        volumes:
+            # Mount volume cho logs (nếu cần)
+            - ./logs:/app/logs
+        networks:
+            - remind-bot-network
+        healthcheck:
+            test: ['CMD', 'node', 'healthcheck.js']
+            interval: 30s
+            timeout: 10s
+            retries: 3
+            start_period: 40s
+
+networks:
+    remind-bot-network:
+        driver: bridge
+# Uncomment volumes nếu cần persistent storage
+# volumes:
+#   app-data:
+#     driver: local
